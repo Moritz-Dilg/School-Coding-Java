@@ -1,5 +1,8 @@
 package functional.streams.terminalOperations;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main {
@@ -15,5 +18,14 @@ public class Main {
         int s = Stream.of("Ann", "Pat", "Mary", "Paul")
                 .reduce(0, (partialSum, x) -> partialSum + x.length(), (partialSum1, partialSum2) -> partialSum1 + partialSum2);
         System.out.println(s);
+
+
+        Map<Integer, List<String>> result = Stream.of("Ann", "Pat", "Mary", "Paul")
+                .collect(Collectors.groupingBy(string -> string.length()));
+        System.out.println(result);
+
+        Map<Character, List<String>> res = Stream.of("Ann", "Pat", "Mary", "Paul")
+                .collect(Collectors.groupingBy(string -> string.charAt(0)));
+        System.out.println(res);
     }
 }
