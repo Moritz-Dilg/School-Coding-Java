@@ -53,11 +53,15 @@ class ConnectionThread extends Thread {
                 int type = (int) jsonObject.get("type");
                 if (type == 0) {
                     outPrintWriter.println(jsonObject);
-                    history.add(jsonObject);
+                    synchronized (history) {
+                        history.add(jsonObject);
+                    }
                 } else if (type == 1) {
                     JSONObject returnObject = new JSONObject();
                     returnObject.put("type", 2);
-                    returnObject.put("history", history);
+                    synchronized (history) {
+                        returnObject.put("history", history);
+                    }
                     outPrintWriter.println(returnObject);
                     System.out.println(returnObject);
                 } else if (type == 3) {
