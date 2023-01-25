@@ -41,7 +41,9 @@ class ConnectionThread extends Thread {
     public void run() {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter outPrintWriter = new PrintWriter(socket.getOutputStream(), true)) {
-            writers.add(outPrintWriter);
+            synchronized (writers) {
+                writers.add(outPrintWriter);
+            }
 
             while (true) {
                 String payload = bufferedReader.readLine();
@@ -50,8 +52,10 @@ class ConnectionThread extends Thread {
 
                 int type = (int) jsonObject.get("type");
                 if (type == 0) {
-                    for (PrintWriter writer : writers) {
-                        writer.println(jsonObject);
+                    synchronized (writers) {
+                        for (PrintWriter writer : writers) {
+                            writer.println(jsonObject);
+                        }
                     }
                     synchronized (history) {
                         history.add(jsonObject);
