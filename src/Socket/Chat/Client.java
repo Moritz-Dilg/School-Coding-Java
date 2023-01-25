@@ -71,7 +71,7 @@ class PostThread extends Thread {
     public void run() {
         while (true) {
             Scanner scanner = new Scanner(System.in);
-            String message = scanner.next();
+            String message = scanner.nextLine();
 
             JSONObject newMessage = new JSONObject();
             newMessage.put("type", 0);
