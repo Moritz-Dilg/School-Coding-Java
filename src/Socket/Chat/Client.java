@@ -8,7 +8,13 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
+    private String name;
+
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+
         try (Socket socket = new Socket("localhost", 1234)) {
             InputStream inputStream = socket.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -29,7 +35,7 @@ public class Client {
                 printMessage((JSONObject) history.get(i));
             }
 
-            PostThread postThread = new PostThread(outPrintWriter);
+            PostThread postThread = new PostThread(outPrintWriter, name);
             postThread.start();
 
             while (true) {
@@ -54,9 +60,11 @@ public class Client {
 
 class PostThread extends Thread {
     private final PrintWriter outPrintWriter;
+    private final String name;
 
-    public PostThread(PrintWriter outPrintWriter) {
+    public PostThread(PrintWriter outPrintWriter, String name) {
         this.outPrintWriter = outPrintWriter;
+        this.name = name;
     }
 
     @Override
@@ -67,7 +75,7 @@ class PostThread extends Thread {
 
             JSONObject newMessage = new JSONObject();
             newMessage.put("type", 0);
-            newMessage.put("name", "Moritz");
+            newMessage.put("name", name);
             newMessage.put("message", message);
             outPrintWriter.println(newMessage);
         }
