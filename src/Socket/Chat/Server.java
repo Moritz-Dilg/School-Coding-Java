@@ -11,11 +11,12 @@ import org.json.JSONObject;
 public class Server {
     public static void main(String[] args) {
         ArrayList<JSONObject> history = new ArrayList<>();
+        ArrayList<PrintWriter> writers = new ArrayList<>();
 
         try (ServerSocket server = new ServerSocket(1234)) {
             while (true) {
                 final Socket socket = server.accept();
-                new ConnectionThread(socket, history).start();
+                new ConnectionThread(socket, history, writers).start();
                 System.out.println("New connection");
             }
         } catch (IOException e) {
@@ -28,22 +29,19 @@ public class Server {
 class ConnectionThread extends Thread {
     private final Socket socket;
     private final ArrayList<JSONObject> history;
+    private final ArrayList<PrintWriter> writers;
 
-    public ConnectionThread(Socket socket, ArrayList<JSONObject> history) {
+    public ConnectionThread(Socket socket, ArrayList<JSONObject> history, ArrayList<PrintWriter> writers) {
         this.socket = socket;
         this.history = history;
+        this.writers = writers;
     }
 
     @Override
     public void run() {
-        PrintWriter outPrintWriter = null;
-        try {
-            InputStream inputStream = socket.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-            OutputStream outputStream = socket.getOutputStream();
-            outPrintWriter = new PrintWriter(outputStream, true);
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter outPrintWriter = new PrintWriter(socket.getOutputStream(), true)) {
+            writers.add(outPrintWriter);
 
             while (true) {
                 String payload = bufferedReader.readLine();
@@ -52,7 +50,9 @@ class ConnectionThread extends Thread {
 
                 int type = (int) jsonObject.get("type");
                 if (type == 0) {
-                    outPrintWriter.println(jsonObject);
+                    for (PrintWriter writer : writers) {
+                        writer.println(jsonObject);
+                    }
                     synchronized (history) {
                         history.add(jsonObject);
                     }
@@ -76,7 +76,6 @@ class ConnectionThread extends Thread {
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-            if (outPrintWriter != null) outPrintWriter.close();
         }
     }
 }
