@@ -15,7 +15,7 @@ public class MMGameImpl implements MMGame {
     private final int height;
     private MMState state;
     private int points;
-    private MMFieldState[][] field;
+    private final MMFieldState[][] field;
 
     private final List<MMChangeListener> listeners = new ArrayList<>();
 
@@ -78,13 +78,7 @@ public class MMGameImpl implements MMGame {
             throw new MMException("Field is empty");
         }
 
-        boolean hasSameColorNeighbor = false;
-        if (row > 0 && field[row - 1][col] == field[row][col]) hasSameColorNeighbor = true;
-        if (row < height - 1 && field[row + 1][col] == field[row][col]) hasSameColorNeighbor = true;
-        if (col > 0 && field[row][col - 1] == field[row][col]) hasSameColorNeighbor = true;
-        if (col < width - 1 && field[row][col + 1] == field[row][col]) hasSameColorNeighbor = true;
-
-        if (!hasSameColorNeighbor) {
+        if (!hasSameColorNeighbor(row, col)) {
             throw new MMException("No same color neighbours");
         }
 
@@ -116,6 +110,13 @@ public class MMGameImpl implements MMGame {
         fireChangeEvent(false);
     }
 
+    private boolean hasSameColorNeighbor(int row, int col) {
+        if (row > 0 && field[row - 1][col] == field[row][col]) return true;
+        if (row < height - 1 && field[row + 1][col] == field[row][col]) return true;
+        if (col > 0 && field[row][col - 1] == field[row][col]) return true;
+        return col < width - 1 && field[row][col + 1] == field[row][col];
+    }
+
     @Override
     public void addValueChangeListener(MMChangeListener listener) {
         listeners.add(listener);
@@ -141,16 +142,7 @@ public class MMGameImpl implements MMGame {
             for (int j = 0; j < height; j++) {
                 if (field[j][i] == MMFieldState.EMPTY) continue;
 
-                boolean hasSameColorNeighbor = false;
-                if (j > 0 && field[j - 1][i] == field[j][i]) hasSameColorNeighbor = true;
-                if (j < height - 1 && field[j + 1][i] == field[j][i]) hasSameColorNeighbor = true;
-                if (i > 0 && field[j][i - 1] == field[j][i]) hasSameColorNeighbor = true;
-                if (i < width - 1 && field[j][i + 1] == field[j][i]) hasSameColorNeighbor = true;
-
-                if (hasSameColorNeighbor) {
-                    System.out.println("row: " + j + " col: " + i);
-                    return true;
-                }
+                if (hasSameColorNeighbor(j, i)) return true;
             }
         }
 
