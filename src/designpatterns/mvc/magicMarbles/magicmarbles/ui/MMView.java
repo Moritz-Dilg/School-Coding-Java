@@ -42,7 +42,7 @@ public class MMView {
             drawField();
             if (evt.isGameOver()) {
                 Preferences preferences = Preferences.userNodeForPackage(MMView.class);
-                if (game.getGamePoints() > Integer.parseInt(preferences.get("high_score", "0"))) {
+                if (game.getGamePoints() > Integer.parseInt(preferences.get("high_score_" + game.getWidth() + "_" + game.getHeight(), "0"))) {
                     preferences.put("high_score_" + game.getWidth() + "_" + game.getHeight(), String.valueOf(game.getGamePoints()));
                     high_score.setText("High Score: " + preferences.get("high_score_" + game.getWidth() + "_" + game.getHeight(), "0"));
                 }
