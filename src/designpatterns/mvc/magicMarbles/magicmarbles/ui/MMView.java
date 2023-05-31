@@ -58,6 +58,9 @@ public class MMView {
                 drawField(i, j, this.game.getFieldState(j, i));
             }
         }
+
+        Preferences preferences = Preferences.userNodeForPackage(MMView.class);
+        high_score.setText("High Score: " + preferences.get("high_score_" + game.getWidth() + "_" + game.getHeight(), "0"));
     }
 
     private void drawField(int x, int y, MMFieldState state) {
@@ -75,6 +78,7 @@ public class MMView {
     public void buildFrame() {
         frame = new JFrame("Magic Marbles");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //frame.setResizable(false);
         frame.setVisible(true);
 
         JMenuBar menuBar = new JMenuBar();
@@ -88,6 +92,17 @@ public class MMView {
             String height = JOptionPane.showInputDialog(frame, "Height", game.getHeight());
             game = new MMGameImpl(Integer.parseInt(width), Integer.parseInt(height));
             game.addValueChangeListener(changeListener);
+
+            drawPanel.removeAll();
+
+            image = new BufferedImage(Math.max(game.getWidth() * fieldSize, 220), game.getHeight() * fieldSize, BufferedImage.TYPE_INT_RGB);
+            image.getGraphics().fillRect(0, 0, Math.max(game.getWidth() * fieldSize, 220), game.getHeight() * fieldSize);
+
+            JLabel label = new JLabel(new ImageIcon(image));
+
+            drawPanel.add(label);
+
+            frame.pack();
             drawField();
         });
         menu.add(newGame);
@@ -124,8 +139,8 @@ public class MMView {
     private final MouseListener mouseListener = new MouseListener() {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            int x = mouseEvent.getX() / fieldSize;
-            int y = mouseEvent.getY() / fieldSize;
+            int x = (mouseEvent.getX() - 4) / fieldSize;
+            int y = (mouseEvent.getY() - 4) / fieldSize;
             try {
                 game.select(y, x);
             } catch (MMException e) {
