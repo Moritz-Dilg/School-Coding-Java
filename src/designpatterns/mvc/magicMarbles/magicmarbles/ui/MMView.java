@@ -78,7 +78,7 @@ public class MMView {
     public void buildFrame() {
         frame = new JFrame("Magic Marbles");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //frame.setResizable(false);
+        frame.setResizable(false);
         frame.setVisible(true);
 
         JMenuBar menuBar = new JMenuBar();
